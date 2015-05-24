@@ -125,12 +125,12 @@ func handleConn(conn net.Conn, config *ssh.ServerConfig, t *testing.T, fs FileSy
 				switch {
 				case IsSftpRequest(req):
 					ok = true
+					go func() { fmt.Println(ServeChannel(channel, fs)) }()
 				}
 				req.Reply(ok, nil)
 			}
 		}(requests)
 
-		go func() { fmt.Println(ServeChannel(channel, fs)) }()
 	}
 }
 
