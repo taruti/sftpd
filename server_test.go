@@ -245,6 +245,10 @@ func (d rdir) Close() error {
 	return d.d.Close()
 }
 
+// Warning:
+// Use your own path mangling functionality in production code.
+// This can be quite non-trivial depending on the operating system.
+// The code below is not sufficient for production servers.
 func rfsMangle(path string) (string, error) {
 	if strings.Contains(path, "..") {
 		return "<invalid>", errors.New("Invalid path")
