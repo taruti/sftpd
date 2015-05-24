@@ -7,9 +7,7 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"errors"
-	"fmt"
 	"io"
-	"log"
 	"net"
 	"os"
 	"strings"
@@ -56,7 +54,7 @@ func failOnErr(t *testing.T, err error, reason string) {
 
 func PrintDiscardRequests(in <-chan *ssh.Request) {
 	for req := range in {
-		fmt.Println("PRINTDISC", req.Type, *req)
+		debug("PRINTDISC", req.Type, *req)
 		if req.WantReply {
 			req.Reply(false, nil)
 		}
@@ -64,7 +62,7 @@ func PrintDiscardRequests(in <-chan *ssh.Request) {
 }
 
 func TestServer(t *testing.T) {
-	fmt.Printf("Listening on port 2022 user %s pass %s\n", testUser, testPass)
+	debugf("Listening on port 2022 user %s pass %s\n", testUser, testPass)
 
 	config := &ssh.ServerConfig{
 		PasswordCallback: sshutil.CreatePasswordCheck(testUser, testPass),
@@ -72,7 +70,7 @@ func TestServer(t *testing.T) {
 
 	hkey, e := sshutil.KeyLoader{Flags: sshutil.Create}.Load()
 	failOnErr(t, e, "Failed to parse host key")
-	fmt.Printf("Public key: %s\n", sshutil.PublicKeyHash(hkey.PublicKey()))
+	debugf("Public key: %s\n", sshutil.PublicKeyHash(hkey.PublicKey()))
 
 	config.AddHostKey(hkey)
 
@@ -101,14 +99,14 @@ func handleConn(conn net.Conn, config *ssh.ServerConfig, t *testing.T, fs FileSy
 	sc, chans, reqs, e := ssh.NewServerConn(conn, config)
 	failOnErr(t, e, "Failed to initiate new connection")
 
-	fmt.Println("sc", sc)
+	debug("sc", sc)
 
 	// The incoming Request channel must be serviced.
 	go PrintDiscardRequests(reqs)
 
 	// Service the incoming Channel channel.
 	for newChannel := range chans {
-		fmt.Println("NEWCHANNEL", newChannel, newChannel.ChannelType())
+		debug("NEWCHANNEL", newChannel, newChannel.ChannelType())
 		if newChannel.ChannelType() != "session" {
 			newChannel.Reject(ssh.UnknownChannelType, "unknown channel type")
 			continue
@@ -120,12 +118,12 @@ func handleConn(conn net.Conn, config *ssh.ServerConfig, t *testing.T, fs FileSy
 
 		go func(in <-chan *ssh.Request) {
 			for req := range in {
-				fmt.Println("REQUEST:", *req)
+				debug("REQUEST:", *req)
 				ok := false
 				switch {
 				case IsSftpRequest(req):
 					ok = true
-					go func() { fmt.Println(ServeChannel(channel, fs)) }()
+					go func() { debug(ServeChannel(channel, fs)) }()
 				}
 				req.Reply(ok, nil)
 			}
@@ -137,7 +135,7 @@ func handleConn(conn net.Conn, config *ssh.ServerConfig, t *testing.T, fs FileSy
 func ClientDo() {
 	e := clientDo()
 	if e != nil {
-		log.Println("CLIENT ERROR", e)
+		debug("CLIENT ERROR", e)
 	}
 }
 func clientDo() error {
@@ -157,7 +155,7 @@ func clientDo() error {
 	if e != nil {
 		return e
 	}
-	fmt.Println(rs)
+	debug(rs)
 	return nil
 }
 
