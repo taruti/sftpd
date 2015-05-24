@@ -62,6 +62,8 @@ func PrintDiscardRequests(in <-chan *ssh.Request) {
 }
 
 func TestServer(t *testing.T) {
+	debug = t.Log
+	debugf = t.Logf
 	debugf("Listening on port 2022 user %s pass %s\n", testUser, testPass)
 
 	config := &ssh.ServerConfig{
