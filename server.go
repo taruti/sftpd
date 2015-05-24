@@ -19,12 +19,14 @@ type Config struct {
 
 var sftpSubSystem = []byte{0, 0, 0, 4, 115, 102, 116, 112}
 
+// IsSftpRequest checks whether a given ssh.Request is for sftp.
 func IsSftpRequest(req *ssh.Request) bool {
 	return req.Type == "subsystem" && bytes.Equal(sftpSubSystem, req.Payload)
 }
 
 var initReply = []byte{0, 0, 0, 5, ssh_FXP_VERSION, 0, 0, 0, 3}
 
+// ServeChannel serves a ssh.Channel with the given FileSystem.
 func ServeChannel(c ssh.Channel, fs FileSystem) error {
 	defer c.Close()
 	var h handles
