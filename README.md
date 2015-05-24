@@ -4,3 +4,6 @@
 
 # [![GoDoc](https://godoc.org/github.com/taruti/sftpd?status.png)](http://godoc.org/github.com/taruti/sftpd)
 
+# TODO
++ Renames
++ Symlink creation
