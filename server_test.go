@@ -235,9 +235,7 @@ func (d rdir) Readdir(count int) ([]NamedAttr, error) {
 	nas := make([]NamedAttr, len(fis))
 	for i, fi := range fis {
 		nas[i].Name = fi.Name()
-		nas[i].Flags = ATTR_SIZE | ATTR_MODE
-		nas[i].Size = uint64(fi.Size())
-		nas[i].Mode = modeMangle(fi)
+		nas[i].FillFrom(fi)
 	}
 	return nas, nil
 }
@@ -300,21 +298,7 @@ func (fs rfs) Stat(name string, islstat bool) (*Attr, error) {
 		return nil, e
 	}
 	var a Attr
-	a.Flags = ATTR_SIZE | ATTR_MODE
-	a.Size = uint64(fi.Size())
-	a.Mode = modeMangle(fi)
+	e = a.FillFrom(fi)
 
-	return &a, nil
-}
-
-func modeMangle(fi os.FileInfo) uint32 {
-	m := fi.Mode()
-	r := uint32(m.Perm())
-	switch {
-	case m.IsDir():
-		r |= 0040000
-	case m.IsRegular():
-		r |= 0100000
-	}
-	return r
+	return &a, e
 }

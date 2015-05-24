@@ -1,6 +1,9 @@
 package sftpd
 
-import "io"
+import (
+	"io"
+	"os"
+)
 
 type Attr struct {
 	Flags        uint32
@@ -48,4 +51,20 @@ type FileSystem interface {
 	ReadLink(path string) (string, error)
 	CreateLink(path string, target string, flags uint32) error
 	RealPath(path string) (string, error)
+}
+
+// FillFrom fills an Attr from a os.FileInfo
+func (a *Attr) FillFrom(fi os.FileInfo) error {
+	*a = Attr{}
+	a.Flags = ATTR_SIZE | ATTR_MODE
+	a.Size = uint64(fi.Size())
+	m := fi.Mode()
+	a.Mode = uint32(m.Perm())
+	switch {
+	case m.IsDir():
+		a.Mode |= 0040000
+	case m.IsRegular():
+		a.Mode |= 0100000
+	}
+	return nil
 }
