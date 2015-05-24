@@ -153,6 +153,9 @@ func clientDo() error {
 	if e != nil {
 		return e
 	}
+	cl.Mkdir("/D")
+	cl.Chmod("/D", 0700)
+	cl.Remove("/D")
 	rs, e := cl.ReadDir("/")
 	if e != nil {
 		return e
@@ -169,7 +172,7 @@ func TestRandomInput(t *testing.T) {
 		ServeChannel(rd, fs)
 	}
 	for i := 0; i < 257; i++ {
-		for j := 0; j < 100; j++ {
+		for j := 0; j < 1000; j++ {
 			rd.rem = i
 			ServeChannel(rd, fs)
 		}
