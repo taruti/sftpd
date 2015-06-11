@@ -52,7 +52,7 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			return e
 		}
 		plen--
-		debug("CR op=%d data len=%d\n", op, plen)
+		debugf("CR op=%d data len=%d\n", op, plen)
 		if plen < 2 {
 			return errors.New("Packet too short")
 		}
@@ -113,6 +113,10 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			bs := bytepool.Alloc(int(length))
 			n, e = f.ReadAt(bs, int64(offset))
 			debug("READ2", n, e)
+			// Handle go readers that return io.EOF and bytes at the same time.
+			if e == io.EOF && n > 0 {
+				e = nil
+			}
 			if e != nil {
 				bytepool.Free(bs)
 				continue
