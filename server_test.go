@@ -1,11 +1,7 @@
 package sftpd
 
 import (
-	"crypto/ecdsa"
-	"crypto/elliptic"
 	"crypto/rand"
-	"crypto/x509"
-	"encoding/pem"
 	"errors"
 	"io"
 	"net"
@@ -32,19 +28,6 @@ var testPass = func() []byte {
 	}
 	return bs
 }()
-
-func createKeyPEM() ([]byte, error) {
-	k, e := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
-	if e != nil {
-		return nil, e
-	}
-	b, e := x509.MarshalECPrivateKey(k)
-	if e != nil {
-		return nil, e
-	}
-	return pem.EncodeToMemory(&pem.Block{Type: "EC PRIVATE KEY", Bytes: b}), nil
-
-}
 
 func failOnErr(t *testing.T, err error, reason string) {
 	if err != nil {
