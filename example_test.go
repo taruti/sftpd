@@ -11,7 +11,7 @@ func ExampleConfig(fs FileSystem) {
 	cfg.PasswordCallback = sshutil.CreatePasswordCheck(testUser, testPass)
 
 	// This creates a new host key for each run of the test.
-	// Add the sshutil.RSA2048 and sshutil.Save flags if needed for the server in question...
+	// Add the sshutil.RSA2048 and sshutil.Save flags if wanted.
 	hkey, e := sshutil.KeyLoader{Flags: sshutil.Create}.Load()
 	if e != nil {
 		log.Println(e)
