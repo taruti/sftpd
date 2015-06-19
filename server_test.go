@@ -68,7 +68,7 @@ func TestServer(t *testing.T) {
 	//	for {
 	nConn, e := listener.Accept()
 	failOnErr(t, e, "Failed to accept")
-	handleConn(nConn, config, t, EmptyFS{})
+	handleTestConn(nConn, config, t, EmptyFS{})
 	//	}
 
 	go ClientDo()
@@ -77,11 +77,11 @@ func TestServer(t *testing.T) {
 	nConn, e = listener.Accept()
 	failOnErr(t, e, "Failed to accept")
 	os.Mkdir("/tmp/test-sftpd", 0700)
-	handleConn(nConn, config, t, rfs{})
+	handleTestConn(nConn, config, t, rfs{})
 	//	}
 }
 
-func handleConn(conn net.Conn, config *ssh.ServerConfig, t *testing.T, fs FileSystem) {
+func handleTestConn(conn net.Conn, config *ssh.ServerConfig, t *testing.T, fs FileSystem) {
 	sc, chans, reqs, e := ssh.NewServerConn(conn, config)
 	failOnErr(t, e, "Failed to initiate new connection")
 
