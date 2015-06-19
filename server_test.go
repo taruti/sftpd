@@ -53,6 +53,7 @@ func TestServer(t *testing.T) {
 		PasswordCallback: sshutil.CreatePasswordCheck(testUser, testPass),
 	}
 
+	// Add the sshutil.RSA2048 and sshutil.Save flags if needed for the server in question...
 	hkey, e := sshutil.KeyLoader{Flags: sshutil.Create}.Load()
 	failOnErr(t, e, "Failed to parse host key")
 	debugf("Public key: %s\n", sshutil.PublicKeyHash(hkey.PublicKey()))

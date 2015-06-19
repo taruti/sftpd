@@ -24,6 +24,7 @@ func runServer(hostport string, fs sftpd.FileSystem) error {
 		PasswordCallback: sshutil.CreatePasswordCheck(testUser, testPass),
 	}
 
+	// Add the sshutil.RSA2048 and sshutil.Save flags if needed for the server in question...
 	hkey, e := sshutil.KeyLoader{Flags: sshutil.Create}.Load()
 	if e != nil {
 		return e
