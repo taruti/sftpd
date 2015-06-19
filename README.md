@@ -1,8 +1,9 @@
 # sftpd - SFTP server library in Go
 
-# License: MIT
+# License: MIT - Docs [![GoDoc](https://godoc.org/github.com/taruti/sftpd?status.png)](http://godoc.org/github.com/taruti/sftpd)
 
-# [![GoDoc](https://godoc.org/github.com/taruti/sftpd?status.png)](http://godoc.org/github.com/taruti/sftpd)
+# Changes
++ Added new high-level API with ``Config`` and ``Config.RunServer``.
 
 # FAQ
 
@@ -13,5 +14,5 @@ is caused by an ECDSA host key. If using sshutil add the
 ``sshutil.RSA2048`` flag.
 
 # TODO
-+ [ ] Renames
-+ [ ] Symlink creation
++ Renames
++ Symlink creation
