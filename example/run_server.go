@@ -11,8 +11,15 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// Run a server serving a given filesystem
-func RunServer(hostport string, fs sftpd.FileSystem) error {
+// RunServer runs a server serving a given filesystem
+func RunServer(hostport string, fs sftpd.FileSystem) {
+	e := runServer(hostport, fs)
+	if e != nil {
+		log.Println("running server errored:", e)
+	}
+}
+
+func runServer(hostport string, fs sftpd.FileSystem) error {
 	config := &ssh.ServerConfig{
 		PasswordCallback: sshutil.CreatePasswordCheck(testUser, testPass),
 	}
