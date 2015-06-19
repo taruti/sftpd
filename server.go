@@ -13,10 +13,6 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-type Config struct {
-	ssh.ServerConfig
-}
-
 var sftpSubSystem = []byte{0, 0, 0, 4, 115, 102, 116, 112}
 
 // IsSftpRequest checks whether a given ssh.Request is for sftp.
