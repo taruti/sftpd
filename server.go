@@ -217,10 +217,21 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			var l binp.Len
 			o := binp.Out().LenB32(&l).LenStart(&l).Byte(ssh_FXP_NAME).B32(id).B32(uint32(len(fis)))
 			for _, fi := range fis {
-				// FIXME
+				// FIXME should we do special handling for long names?
 				n := fi.Name
-				const flag = ssh_FILEXFER_ATTR_SIZE
-				o.B32String(n).B32String(n).B32(flag).B64(uint64(fi.Size))
+				o.B32String(n).B32String(n).B32(fi.Flags)
+				if fi.Flags&ATTR_SIZE != 0 {
+					o.B64(uint64(fi.Size))
+				}
+				if fi.Flags&ATTR_UIDGID != 0 {
+					o.B32(fi.Uid).B32(fi.Gid)
+				}
+				if fi.Flags&ATTR_MODE != 0 {
+					o.B32(fi.Mode)
+				}
+				if fi.Flags&ATTR_TIME != 0 {
+					o.B32(fi.ATime).B32(fi.MTime)
+				}
 			}
 			o.LenDone(&l)
 			e = wrc(c, o.Out())
