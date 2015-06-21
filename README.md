@@ -4,6 +4,7 @@
 
 # Changes
 + Added new high-level API with ``Config`` and ``Config.RunServer``.
++ Added interface to go-fuzz, however depends on [CL](https://go-review.googlesource.com/#/c/11285/)
 
 # FAQ
 
@@ -16,3 +17,4 @@ is caused by an ECDSA host key. If using sshutil add the
 # TODO
 + Renames
 + Symlink creation
++ Enable go-fuzz with vanilla golang.org/x/crypto/ see [CL](https://go-review.googlesource.com/#/c/11285/).
