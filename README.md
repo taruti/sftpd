@@ -14,6 +14,14 @@ The client and the server cannot agree on algorithms. Typically this
 is caused by an ECDSA host key. If using sshutil add the
 ``sshutil.RSA2048`` flag.
 
+## Enabling debugging output
+
+```
+go build -tags debug -a
+```
+
+Will enable debugging output using package `log`.
+
 # TODO
 + Renames
 + Symlink creation

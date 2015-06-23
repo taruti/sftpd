@@ -48,7 +48,7 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			return e
 		}
 		plen--
-		debugf("CR op=%d data len=%d\n", op, plen)
+		debugf("CR op=%v data len=%d\n", ssh_fxp(op), plen)
 		if plen < 2 {
 			return errors.New("Packet too short")
 		}

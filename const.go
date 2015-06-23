@@ -49,3 +49,7 @@ const (
 	ssh_FILEXFER_ATTR_ACMODTIME   = 0x00000008
 	ssh_FILEXFER_ATTR_EXTENDED    = 0x80000000
 )
+
+// These are used to get more pretty debugging output.
+type ssh_fxp byte
+type ssh_fx byte
