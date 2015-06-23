@@ -4,7 +4,8 @@
 
 # Changes
 + Added new high-level API with ``Config`` and ``Config.RunServer``.
-+ Added interface to go-fuzz, however depends on [CL](https://go-review.googlesource.com/#/c/11285/)
++ Go-fuzz fuzzer supported.
++ Debugging output with ```-tags debug```.
 
 # FAQ
 
@@ -25,4 +26,3 @@ Will enable debugging output using package `log`.
 # TODO
 + Renames
 + Symlink creation
-+ Enable go-fuzz with vanilla golang.org/x/crypto/ see [CL](https://go-review.googlesource.com/#/c/11285/).
