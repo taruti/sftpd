@@ -8,7 +8,11 @@ var debug func(...interface{}) = log.Println
 var debugf func(string, ...interface{}) = log.Printf
 
 func (b ssh_fxp) String() string {
-	return ssh_fxp_map[b]
+	s := ssh_fxp_map[b]
+	if s == "" {
+		s = "INVALID"
+	}
+	return s
 }
 
 var ssh_fxp_map = map[ssh_fxp]string{
@@ -41,7 +45,11 @@ var ssh_fxp_map = map[ssh_fxp]string{
 }
 
 func (b ssh_fx) String() string {
-	return ssh_fx_map[b]
+	s := ssh_fx_map[b]
+	if s == "" {
+		s = "INVALID"
+	}
+	return s
 }
 
 var ssh_fx_map = map[ssh_fx]string{
