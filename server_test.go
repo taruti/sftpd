@@ -29,6 +29,9 @@ var testPass = func() []byte {
 	return bs
 }()
 
+var tdebug = debug
+var tdebugf = debugf
+
 func failOnErr(t *testing.T, err error, reason string) {
 	if err != nil {
 		t.Fatalf("%s: %v", reason, err)
@@ -37,7 +40,7 @@ func failOnErr(t *testing.T, err error, reason string) {
 
 func PrintDiscardRequests(in <-chan *ssh.Request) {
 	for req := range in {
-		debug("PRINTDISC", req.Type, *req)
+		tdebug("PRINTDISC", req.Type, *req)
 		if req.WantReply {
 			req.Reply(false, nil)
 		}
@@ -45,9 +48,9 @@ func PrintDiscardRequests(in <-chan *ssh.Request) {
 }
 
 func TestServer(t *testing.T) {
-	debug = t.Log
-	debugf = t.Logf
-	debugf("Listening on port 2022 user %s pass %s\n", testUser, testPass)
+	tdebug = t.Log
+	tdebugf = t.Logf
+	tdebugf("Listening on port 2022 user %s pass %s\n", testUser, testPass)
 
 	config := &ssh.ServerConfig{
 		PasswordCallback: sshutil.CreatePasswordCheck(testUser, testPass),
@@ -56,7 +59,7 @@ func TestServer(t *testing.T) {
 	// Add the sshutil.RSA2048 and sshutil.Save flags if needed for the server in question...
 	hkey, e := sshutil.KeyLoader{Flags: sshutil.Create}.Load()
 	failOnErr(t, e, "Failed to parse host key")
-	debugf("Public key: %s\n", sshutil.PublicKeyHash(hkey.PublicKey()))
+	tdebugf("Public key: %s\n", sshutil.PublicKeyHash(hkey.PublicKey()))
 
 	config.AddHostKey(hkey)
 
@@ -85,14 +88,14 @@ func handleTestConn(conn net.Conn, config *ssh.ServerConfig, t *testing.T, fs Fi
 	sc, chans, reqs, e := ssh.NewServerConn(conn, config)
 	failOnErr(t, e, "Failed to initiate new connection")
 
-	debug("sc", sc)
+	tdebug("sc", sc)
 
 	// The incoming Request channel must be serviced.
 	go PrintDiscardRequests(reqs)
 
 	// Service the incoming Channel channel.
 	for newChannel := range chans {
-		debug("NEWCHANNEL", newChannel, newChannel.ChannelType())
+		tdebug("NEWCHANNEL", newChannel, newChannel.ChannelType())
 		if newChannel.ChannelType() != "session" {
 			newChannel.Reject(ssh.UnknownChannelType, "unknown channel type")
 			continue
@@ -104,12 +107,12 @@ func handleTestConn(conn net.Conn, config *ssh.ServerConfig, t *testing.T, fs Fi
 
 		go func(in <-chan *ssh.Request) {
 			for req := range in {
-				debug("REQUEST:", *req)
+				tdebug("REQUEST:", *req)
 				ok := false
 				switch {
 				case IsSftpRequest(req):
 					ok = true
-					go func() { debug(ServeChannel(channel, fs)) }()
+					go func() { tdebug(ServeChannel(channel, fs)) }()
 				}
 				req.Reply(ok, nil)
 			}
@@ -121,7 +124,7 @@ func handleTestConn(conn net.Conn, config *ssh.ServerConfig, t *testing.T, fs Fi
 func ClientDo() {
 	e := clientDo()
 	if e != nil {
-		debug("CLIENT ERROR", e)
+		tdebug("CLIENT ERROR", e)
 	}
 }
 func clientDo() error {
@@ -144,7 +147,7 @@ func clientDo() error {
 	if e != nil {
 		return e
 	}
-	debug(rs)
+	tdebug(rs)
 	return nil
 }
 
@@ -242,7 +245,7 @@ func rfsMangle(path string) (string, error) {
 		path = path[1:]
 	}
 	path = "/tmp/test-sftpd/" + path
-	debug("MANGLE -> " + path)
+	tdebug("MANGLE -> " + path)
 	return path, nil
 }
 

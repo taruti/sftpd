@@ -4,10 +4,8 @@ package sftpd
 
 import "log"
 
-func init() {
-	debug = log.Println
-	debugf = log.Printf
-}
+var debug func(...interface{}) = log.Println
+var debugf func(string, ...interface{}) = log.Printf
 
 func (b ssh_fxp) String() string {
 	return ssh_fxp_map[b]
