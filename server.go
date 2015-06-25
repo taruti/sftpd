@@ -94,12 +94,10 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			var length uint32
 			var n int
 			e = p.B32(&id).B32String(&handle).B64(&offset).B32(&length).End()
-			debug("READ0", id, handle, offset, length, e)
 			if e != nil {
 				return e
 			}
 			f := h.getFile(handle)
-			debug("READ1", f)
 			if f == nil {
 				return einvhandle
 			}
@@ -108,7 +106,6 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			}
 			bs := bytepool.Alloc(int(length))
 			n, e = f.ReadAt(bs, int64(offset))
-			debug("READ2", n, e)
 			// Handle go readers that return io.EOF and bytes at the same time.
 			if e == io.EOF && n > 0 {
 				e = nil
@@ -119,11 +116,9 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			}
 			bs = bs[0:n]
 			e = wrc(c, binp.Out().B32(1+4+4+uint32(len(bs))).Byte(ssh_FXP_DATA).B32(id).B32(uint32(len(bs))).Out())
-			debug("READ3", len(bs), e)
 			if e == nil {
 				e = wrc(c, bs)
 			}
-			debug("READ4", e)
 			bytepool.Free(bs)
 		case ssh_FXP_WRITE:
 			var handle string
@@ -190,9 +185,8 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			if e != nil {
 				return e
 			}
-			debug("opendir", id, path)
 			dh, e = fs.OpenDir(path)
-			debug("opendir =>", dh, e)
+			debug("opendir", id, path, "=>", dh, e)
 			if e != nil {
 				continue
 			}
@@ -204,13 +198,13 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			if e != nil {
 				return e
 			}
-			debug("readdir", id, handle)
 			f := h.getDir(handle)
 			if f == nil {
 				return einvhandle
 			}
 			var fis []NamedAttr
 			fis, e = f.Readdir(1024)
+			debug("readdir", id, handle, fis, e)
 			if e != nil {
 				continue
 			}
@@ -265,6 +259,7 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			path, e = fs.RealPath(path)
 			e = writeNameOnly(c, id, path, e)
 		case ssh_FXP_RENAME:
+			debug("FIXME RENAME NOT SUPPORTED")
 			e = writeFail(c, id) // FIXME
 		case ssh_FXP_READLINK:
 			var path string
@@ -272,6 +267,7 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			path, e = fs.ReadLink(path)
 			e = writeNameOnly(c, id, path, e)
 		case ssh_FXP_SYMLINK:
+			debug("FIXME SYMLINK NOT SUPPORTED")
 			e = writeFail(c, id) // FIXME
 		}
 		if e != nil {
