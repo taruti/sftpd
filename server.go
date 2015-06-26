@@ -144,6 +144,7 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 				return e
 			}
 			a, e = fs.Stat(path, op == ssh_FXP_LSTAT)
+			debug("stat/lstat", path, "=>", a, e)
 			e = writeAttr(c, id, a, e)
 		case ssh_FXP_FSTAT:
 			var handle string
