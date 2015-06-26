@@ -254,10 +254,11 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			}
 			e = writeErr(c, id, fs.Rmdir(path))
 		case ssh_FXP_REALPATH:
-			var path string
+			var path, newpath string
 			p.B32(&id).B32String(&path).End()
-			path, e = fs.RealPath(path)
-			e = writeNameOnly(c, id, path, e)
+			newpath, e = fs.RealPath(path)
+			debug("realpath: mapping", path, "=>", newpath, e)
+			e = writeNameOnly(c, id, newpath, e)
 		case ssh_FXP_RENAME:
 			debug("FIXME RENAME NOT SUPPORTED")
 			e = writeFail(c, id) // FIXME
