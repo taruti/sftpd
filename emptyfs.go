@@ -2,6 +2,7 @@ package sftpd
 
 import (
 	"errors"
+	"path"
 )
 
 var Failure = errors.New("Failure")
@@ -28,10 +29,12 @@ func (EmptyFS) ReadLink(p string) (string, error)             { return "", Failu
 func (EmptyFS) CreateLink(p string, t string, f uint32) error { return Failure }
 func (EmptyFS) RealPath(p string) (string, error)             { return simpleRealPath(p), nil }
 
-func simpleRealPath(path string) string {
-	switch path {
+func simpleRealPath(fp string) string {
+	switch fp {
 	case "", ".":
-		path = "/"
+		fp = "/"
+	default:
+		fp = path.Clean(fp)
 	}
-	return path
+	return fp
 }
