@@ -377,14 +377,15 @@ func writeErr(c ssh.Channel, id uint32, err error) error {
 	bs := make([]byte, len(failTmpl))
 	copy(bs, failTmpl)
 	binary.BigEndian.PutUint32(bs[5:], id)
-	var code byte = ssh_FX_FAILURE
+	var code ssh_fx = ssh_FX_FAILURE
 	switch err {
 	case nil:
 		code = ssh_FX_OK
 	case io.EOF:
 		code = ssh_FX_EOF
 	}
-	bs[12] = code
+	debug("Sending sftp error code", code)
+	bs[12] = byte(code)
 	return wrc(c, bs)
 }
 
