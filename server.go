@@ -124,16 +124,16 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			var handle string
 			var offset uint64
 			var length uint32
-			e = p.B32(&id).B32String(&handle).B64(&offset).B32(&length).End()
-			if e != nil {
-				return e
-			}
+			p.B32(&id).B32String(&handle).B64(&offset).B32(&length)
 			f := h.getFile(handle)
 			if f == nil {
 				return einvhandle
 			}
 			var bs []byte
-			p.NBytesPeek(int(length), &bs)
+			e = p.NBytesPeek(int(length), &bs).End()
+			if e != nil {
+				return e
+			}
 			_, e = f.WriteAt(bs, int64(offset))
 			e = writeErr(c, id, e)
 		case ssh_FXP_LSTAT, ssh_FXP_STAT:
