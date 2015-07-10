@@ -90,6 +90,11 @@ func (f *synthFile) ReadAt(bs []byte, offset int64) (int, error) {
 	return bytes.NewReader(f.bs).ReadAt(bs, offset)
 }
 
+func (f *synthFile) WriteAt(bs []byte, offset int64) (int, error) {
+	log.Printf("WriteAt %d bytes at %d, `%X`", len(bs), offset, bs)
+	return len(bs), nil
+}
+
 func (f *synthFile) fillAttr(attr *sftpd.Attr) {
 	attr.Flags = sftpd.ATTR_SIZE | sftpd.ATTR_MODE
 	attr.Size = uint64(len(f.bs))
