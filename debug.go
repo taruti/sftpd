@@ -2,7 +2,10 @@
 
 package sftpd
 
-import "log"
+import (
+	"log"
+	"strconv"
+)
 
 var debug func(...interface{}) = log.Println
 var debugf func(string, ...interface{}) = log.Printf
@@ -10,7 +13,7 @@ var debugf func(string, ...interface{}) = log.Printf
 func (b ssh_fxp) String() string {
 	s := ssh_fxp_map[b]
 	if s == "" {
-		s = "INVALID"
+		s = "INVALID:" + strconv.Itoa(int(b))
 	}
 	return s
 }
