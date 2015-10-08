@@ -19,6 +19,7 @@ func (b ssh_fxp) String() string {
 }
 
 var ssh_fxp_map = map[ssh_fxp]string{
+	ssh_FXP_INIT:           `ssh_FXP_INIT`,
 	ssh_FXP_VERSION:        `ssh_FXP_VERSION`,
 	ssh_FXP_OPEN:           `ssh_FXP_OPEN`,
 	ssh_FXP_CLOSE:          `ssh_FXP_CLOSE`,
