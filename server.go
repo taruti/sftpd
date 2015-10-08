@@ -36,7 +36,7 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 	var id uint32
 	for {
 		if e != nil {
-			debug("Sending errror", e)
+			debug("Sending error", e)
 			e = writeErr(c, id, e)
 			if e != nil {
 				return e
