@@ -10,7 +10,7 @@ import (
 	"github.com/taruti/sftpd"
 )
 
-type rfs struct {
+type readOnlyDirFs struct {
 	sftpd.EmptyFS
 }
 
@@ -57,7 +57,7 @@ func rfsMangle(path string) (string, error) {
 	return path, nil
 }
 
-func (fs rfs) OpenDir(path string) (sftpd.Dir, error) {
+func (fs readOnlyDirFs) OpenDir(path string) (sftpd.Dir, error) {
 	p, e := rfsMangle(path)
 	if e != nil {
 		return nil, e
@@ -69,7 +69,7 @@ func (fs rfs) OpenDir(path string) (sftpd.Dir, error) {
 	return rdir{f}, nil
 }
 
-func (fs rfs) OpenFile(path string, mode uint32, a *sftpd.Attr) (sftpd.File, error) {
+func (fs readOnlyDirFs) OpenFile(path string, mode uint32, a *sftpd.Attr) (sftpd.File, error) {
 	p, e := rfsMangle(path)
 	if e != nil {
 		return nil, e
@@ -81,7 +81,7 @@ func (fs rfs) OpenFile(path string, mode uint32, a *sftpd.Attr) (sftpd.File, err
 	return rfile{f: f}, nil
 }
 
-func (fs rfs) Stat(name string, islstat bool) (*sftpd.Attr, error) {
+func (fs readOnlyDirFs) Stat(name string, islstat bool) (*sftpd.Attr, error) {
 	p, e := rfsMangle(name)
 	if e != nil {
 		return nil, e
