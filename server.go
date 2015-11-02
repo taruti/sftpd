@@ -71,7 +71,7 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 				return e
 			}
 			if h.nfiles() >= maxFiles {
-				e = etoomany
+				e = errTooManyFiles
 				continue
 			}
 			var f File
@@ -99,7 +99,7 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			}
 			f := h.getFile(handle)
 			if f == nil {
-				return einvhandle
+				return errInvalidHandle
 			}
 			if length > 64*1024 {
 				length = 64 * 1024
@@ -127,7 +127,7 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			p.B32(&id).B32String(&handle).B64(&offset).B32(&length)
 			f := h.getFile(handle)
 			if f == nil {
-				return einvhandle
+				return errInvalidHandle
 			}
 			var bs []byte
 			e = p.NBytesPeek(int(length), &bs).End()
@@ -155,7 +155,7 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			}
 			f := h.getFile(handle)
 			if f == nil {
-				return einvhandle
+				return errInvalidHandle
 			}
 			a, e = f.FStat()
 			e = writeAttr(c, id, a, e)
@@ -176,7 +176,7 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			}
 			f := h.getFile(handle)
 			if f == nil {
-				return einvhandle
+				return errInvalidHandle
 			}
 			e = writeErr(c, id, f.FSetStat(&a))
 		case ssh_FXP_OPENDIR:
@@ -201,7 +201,7 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			}
 			f := h.getDir(handle)
 			if f == nil {
-				return einvhandle
+				return errInvalidHandle
 			}
 			var fis []NamedAttr
 			fis, e = f.Readdir(1024)
@@ -278,8 +278,8 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 	}
 }
 
-var einvhandle = errors.New("Client supplied an invalid handle")
-var etoomany = errors.New("Too many files")
+var errInvalidHandle = errors.New("Client supplied an invalid handle")
+var errTooManyFiles = errors.New("Too many files")
 
 const maxFiles = 0x100
 
