@@ -28,7 +28,7 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 	var h handles
 	h.init()
 	defer h.closeAll()
-	brd := bufio.NewReader(c)
+	brd := bufio.NewReaderSize(c, 64*1024)
 	var e error
 	var plen int
 	var op byte
