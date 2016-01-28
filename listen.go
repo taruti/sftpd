@@ -19,13 +19,16 @@ type Config struct {
 	LogFunc func(v ...interface{})
 	// FileSystem contains the FileSystem used for this server.
 	FileSystem FileSystem
+
+	readyChan chan error
 }
 
 // RunServer runs the server using the high level API.
-func (c Config) RunServer() error {
+func (c *Config) RunServer() error {
 	if c.LogFunc == nil {
 		c.LogFunc = func(...interface{}) {}
 	}
+	c.readyChan = make(chan error, 1)
 	e := runServer(&c)
 	if e != nil {
 		c.LogFunc("sftpd server failed:", e)
@@ -35,6 +38,8 @@ func (c Config) RunServer() error {
 
 func runServer(c *Config) error {
 	listener, e := net.Listen("tcp", c.HostPort)
+	c.readyChan <- e
+	close(c.readyChan)
 	if e != nil {
 		return e
 	}
@@ -105,4 +110,11 @@ func printDiscardRequests(c *Config, in <-chan *ssh.Request) {
 			req.Reply(false, nil)
 		}
 	}
+}
+
+// BlockTillReady will block till the Config is ready to accept connections.
+// Returns an error if listening failed.
+func (c *Config) BlockTillReady() error {
+	err, _ := <- c.readyChan
+	return err
 }
