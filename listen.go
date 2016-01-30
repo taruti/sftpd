@@ -24,13 +24,17 @@ type Config struct {
 	connChan chan net.Listener
 }
 
+// Init inits a Config.
+func (c *Config) Init() {
+	c.readyChan = make(chan error, 1)
+	c.connChan = make(chan net.Listener, 1)
+}
+
 // RunServer runs the server using the high level API.
 func (c *Config) RunServer() error {
 	if c.LogFunc == nil {
 		c.LogFunc = func(...interface{}) {}
 	}
-	c.readyChan = make(chan error, 1)
-	c.connChan = make(chan net.Listener, 1)
 	e := runServer(c)
 	if e != nil {
 		c.LogFunc("sftpd server failed:", e)
@@ -118,6 +122,7 @@ func printDiscardRequests(c *Config, in <-chan *ssh.Request) {
 
 // BlockTillReady will block till the Config is ready to accept connections.
 // Returns an error if listening failed. Can be called in a concurrent fashion.
+// This is new API - make sure Init is called on the Config before using it.
 func (c *Config) BlockTillReady() error {
 	err, _ := <-c.readyChan
 	return err
@@ -125,6 +130,7 @@ func (c *Config) BlockTillReady() error {
 
 // Close closes the server assosiated with this config. Can be called in a concurrent
 // fashion.
+// This is new API - make sure Init is called on the Config before using it.
 func (c *Config) Close() error {
 	for c := range c.connChan {
 		c.Close()
