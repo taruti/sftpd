@@ -21,7 +21,7 @@ type Config struct {
 	FileSystem FileSystem
 
 	readyChan chan error
-	connChan chan net.Listener
+	connChan  chan net.Listener
 }
 
 // Init inits a Config.
