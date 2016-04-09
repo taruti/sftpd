@@ -10,6 +10,7 @@ import (
 // RunServerHighLevel is an example how to use the low level API
 func RunServerHighLevel(hostport string, fs sftpd.FileSystem) {
 	cfg := sftpd.Config{HostPort: hostport, FileSystem: fs, LogFunc: log.Println}
+	cfg.Init()
 	cfg.PasswordCallback = sshutil.CreatePasswordCheck(testUser, testPass)
 
 	// Add the sshutil.RSA2048 and sshutil.Save flags if needed for the server in question...
