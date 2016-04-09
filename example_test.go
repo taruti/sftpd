@@ -8,6 +8,7 @@ import (
 
 func ExampleConfig(fs FileSystem) {
 	cfg := Config{HostPort: ":2022", FileSystem: fs, LogFunc: log.Println}
+	cfg.Init()
 	cfg.PasswordCallback = sshutil.CreatePasswordCheck(testUser, testPass)
 
 	// This creates a new host key for each run of the test.
