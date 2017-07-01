@@ -7,6 +7,7 @@ import (
 	"errors"
 	"io"
 	"io/ioutil"
+	"os"
 
 	"github.com/taruti/binp"
 	"github.com/taruti/bytepool"
@@ -377,12 +378,18 @@ func writeErr(c ssh.Channel, id uint32, err error) error {
 	bs := make([]byte, len(failTmpl))
 	copy(bs, failTmpl)
 	binary.BigEndian.PutUint32(bs[5:], id)
-	var code ssh_fx = ssh_FX_FAILURE
-	switch err {
-	case nil:
+	var code ssh_fx
+	switch {
+	case err == nil:
 		code = ssh_FX_OK
-	case io.EOF:
+	case err == io.EOF:
 		code = ssh_FX_EOF
+	case os.IsPermission(err):
+		code = ssh_FX_PERMISSION_DENIED
+	case os.IsNotExist(err):
+		code = ssh_FX_NO_SUCH_FILE
+	default:
+		code = ssh_FX_FAILURE
 	}
 	debug("Sending sftp error code", code)
 	bs[12] = byte(code)
