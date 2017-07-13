@@ -8,6 +8,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"time"
 
 	"github.com/taruti/binp"
 	"github.com/taruti/bytepool"
@@ -213,9 +214,8 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 			var l binp.Len
 			o := binp.Out().LenB32(&l).LenStart(&l).Byte(ssh_FXP_NAME).B32(id).B32(uint32(len(fis)))
 			for _, fi := range fis {
-				// FIXME should we do special handling for long names?
 				n := fi.Name
-				o.B32String(n).B32String(n).B32(fi.Flags)
+				o.B32String(n).B32String(readdirLongName(&fi)).B32(fi.Flags)
 				if fi.Flags&ATTR_SIZE != 0 {
 					o.B64(uint64(fi.Size))
 				}
@@ -223,10 +223,10 @@ func ServeChannel(c ssh.Channel, fs FileSystem) error {
 					o.B32(fi.Uid).B32(fi.Gid)
 				}
 				if fi.Flags&ATTR_MODE != 0 {
-					o.B32(fi.Mode)
+					o.B32(fileModeToSftp(fi.Mode))
 				}
 				if fi.Flags&ATTR_TIME != 0 {
-					o.B32(fi.ATime).B32(fi.MTime)
+					outTimes(o, &fi.Attr)
 				}
 			}
 			o.LenDone(&l)
@@ -302,10 +302,12 @@ func parseAttr(p *binp.Parser, a *Attr) *binp.Parser {
 		p = p.B32(&a.Uid).B32(&a.Gid)
 	}
 	if a.Flags&ssh_FILEXFER_ATTR_PERMISSIONS != 0 {
-		p = p.B32(&a.Mode)
+		var mode uint32
+		p = p.B32(&mode)
+		a.Mode = sftpToFileMode(mode)
 	}
 	if a.Flags&ssh_FILEXFER_ATTR_ACMODTIME != 0 {
-		p = p.B32(&a.ATime).B32(&a.MTime)
+		p = inTimes(p, a)
 	}
 	if a.Flags&ssh_FILEXFER_ATTR_EXTENDED != 0 {
 		var count uint32
@@ -338,10 +340,10 @@ func writeAttr(c ssh.Channel, id uint32, a *Attr, e error) error {
 		o = o.B32(a.Uid).B32(a.Gid)
 	}
 	if a.Flags&ssh_FILEXFER_ATTR_PERMISSIONS != 0 {
-		o = o.B32(a.Mode)
+		o = o.B32(fileModeToSftp(a.Mode))
 	}
 	if a.Flags&ssh_FILEXFER_ATTR_ACMODTIME != 0 {
-		o = o.B32(a.ATime).B32(a.MTime)
+		outTimes(o, a)
 	}
 	if a.Flags&ssh_FILEXFER_ATTR_EXTENDED != 0 {
 		count := uint32(len(a.Extended) / 2)
@@ -414,4 +416,15 @@ func discard(brd *bufio.Reader, n int) error {
 		e = nil
 	}
 	return e
+}
+
+func outTimes(o *binp.Printer, a *Attr) {
+	o.B32(uint32(a.ATime.Unix())).B32(uint32(a.MTime.Unix()))
+}
+func inTimes(p *binp.Parser, a *Attr) *binp.Parser {
+	var at, mt uint32
+	p = p.B32(&at).B32(&mt)
+	a.ATime = time.Unix(int64(at), 0)
+	a.MTime = time.Unix(int64(mt), 0)
+	return p
 }

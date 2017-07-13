@@ -3,14 +3,16 @@ package sftpd
 import (
 	"io"
 	"os"
+	"time"
 )
 
 type Attr struct {
 	Flags        uint32
 	Size         uint64
 	Uid, Gid     uint32
-	Mode         uint32
-	ATime, MTime uint32
+	User, Group  string
+	Mode         os.FileMode
+	ATime, MTime time.Time
 	Extended     []string
 }
 
@@ -24,8 +26,8 @@ const (
 	ATTR_UIDGID  = ssh_FILEXFER_ATTR_UIDGID
 	ATTR_MODE    = ssh_FILEXFER_ATTR_PERMISSIONS
 	ATTR_TIME    = ssh_FILEXFER_ATTR_ACMODTIME
-	MODE_REGULAR = 0100000
-	MODE_DIR     = 0040000
+	MODE_REGULAR = os.FileMode(0)
+	MODE_DIR     = os.ModeDir
 )
 
 type Dir interface {
@@ -60,13 +62,29 @@ func (a *Attr) FillFrom(fi os.FileInfo) error {
 	*a = Attr{}
 	a.Flags = ATTR_SIZE | ATTR_MODE
 	a.Size = uint64(fi.Size())
-	m := fi.Mode()
-	a.Mode = uint32(m.Perm())
+	a.Mode = fi.Mode()
+	a.MTime = fi.ModTime()
+	return nil
+}
+
+func fileModeToSftp(m os.FileMode) uint32 {
+	var raw = uint32(m.Perm())
 	switch {
 	case m.IsDir():
-		a.Mode |= 0040000
+		raw |= 0040000
 	case m.IsRegular():
-		a.Mode |= 0100000
+		raw |= 0100000
 	}
-	return nil
+	return raw
+}
+
+func sftpToFileMode(raw uint32) os.FileMode {
+	var m = os.FileMode(raw & 0777)
+	switch {
+	case raw&0040000 != 0:
+		m |= os.ModeDir
+	case raw&0100000 != 0:
+		// regular
+	}
+	return m
 }
