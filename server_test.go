@@ -288,7 +288,7 @@ func (fs rfs) Stat(name string, islstat bool) (*Attr, error) {
 		return nil, e
 	}
 	var a Attr
-	e = a.FillFrom(fi)
+	a.FillFrom(fi)
 
-	return &a, e
+	return &a, nil
 }

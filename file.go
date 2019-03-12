@@ -58,13 +58,12 @@ type FileSystem interface {
 }
 
 // FillFrom fills an Attr from a os.FileInfo
-func (a *Attr) FillFrom(fi os.FileInfo) error {
+func (a *Attr) FillFrom(fi os.FileInfo) {
 	*a = Attr{}
 	a.Flags = ATTR_SIZE | ATTR_MODE
 	a.Size = uint64(fi.Size())
 	a.Mode = fi.Mode()
 	a.MTime = fi.ModTime()
-	return nil
 }
 
 func fileModeToSftp(m os.FileMode) uint32 {

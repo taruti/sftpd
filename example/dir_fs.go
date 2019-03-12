@@ -96,7 +96,7 @@ func (fs readOnlyDirFs) Stat(name string, islstat bool) (*sftpd.Attr, error) {
 		return nil, e
 	}
 	var a sftpd.Attr
-	e = a.FillFrom(fi)
+	a.FillFrom(fi)
 
-	return &a, e
+	return &a, nil
 }
