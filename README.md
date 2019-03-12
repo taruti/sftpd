@@ -2,10 +2,8 @@
 
 # License: MIT - Docs [![GoDoc](https://godoc.org/github.com/taruti/sftpd?status.png)](http://godoc.org/github.com/taruti/sftpd)
 
-# Changes
-+ Added new high-level API with ``Config`` and ``Config.RunServer``.
-+ Go-fuzz fuzzer supported.
-+ Debugging output with ```-tags debug```.
+# Recent changes - 2019
++ `Attr.FillFrom` cannot fail and now does not return an error value. Previously it was always nil.
 
 # FAQ
 
