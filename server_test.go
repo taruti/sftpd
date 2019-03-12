@@ -131,6 +131,8 @@ func clientDo() error {
 	var cc ssh.ClientConfig
 	cc.User = string(testUser)
 	cc.Auth = append(cc.Auth, ssh.Password(string(testPass)))
+	// Use this only for localhost testing.
+	cc.HostKeyCallback = ssh.InsecureIgnoreHostKey()
 	conn, e := ssh.Dial("tcp4", "127.0.0.1:2022", &cc)
 	if e != nil {
 		return e
